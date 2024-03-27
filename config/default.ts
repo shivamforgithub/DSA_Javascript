@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { SYSTEM_ENV } from '../src/shared/enums/common.enum';
+import { SYSTEM_ENV } from '../src/enums/common.enum';
 dotenv.config();
 
 export const retryTimes = {

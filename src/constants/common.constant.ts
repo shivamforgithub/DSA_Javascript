@@ -1,0 +1,1 @@
+export const TRACING_ID_HEADER_KEY = 'X-TRACING-ID';

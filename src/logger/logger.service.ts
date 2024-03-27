@@ -12,12 +12,15 @@ import {
   requestWhitelist,
   responseWhitelist,
 } from 'express-winston';
-import { ENV_PARAMS } from '../../../config/default';
+import { ENV_PARAMS } from '../../config/default';
 import { RequestMethod } from '../enums/request-method.enum';
 import { parseJwt } from '../utils/common.util';
-import { HEALTH_END_POINT } from '../../app/app.controller';
 import moment = require('moment');
-import { getTracingId } from '../middlewares/distributed-tracing-middleware';
+import { SENSITIVE_DATA_LOGS_MASK_INFO } from '../helpers/maskdata.helper';
+import { getExternalId } from '../helpers/identifier.helper';
+import { getTracingId } from 'src/middlewares/distributed-tracing-middleware';
+
+const HEALTH_END_POINT = '/v1/users/health';
 
 const OMITTED_KEYS_FROM_LOG_OBJECT = [
   'message',
@@ -52,6 +55,9 @@ const addCustomAttributesToLogObject = format((info, opts) => {
       meta: info.meta,
     };
   } else {
+    const authTokenPayload = parseJwt(
+      get(info, 'meta.req.headers["authorization"]'),
+    );
     return {
       ...omit(info, OMITTED_KEYS_FROM_LOG_OBJECT),
       log: {
@@ -66,10 +72,15 @@ const addCustomAttributesToLogObject = format((info, opts) => {
         httpVersion: get(info, 'meta.req.httpVersion'),
         body: get(info, 'meta.req.body'),
         query: get(info, 'meta.req.query'),
-        ...(get(info, 'meta.req.headers["authorization"]') && {
+        ...(authTokenPayload && {
+          userExternalId: getExternalId(
+            authTokenPayload.partnerId,
+            authTokenPayload.partnerCustomerId,
+          ),
           userId: getCustomerIdFromJwtToken(
             get(info, 'meta.req.headers["authorization"]'),
           ),
+          mobileNumber: authTokenPayload.mobileNumber,
         }),
       },
       res: {
@@ -142,7 +153,6 @@ class AppLogger {
 }
 
 export const Logger = new AppLogger();
-const SENSITIVE_DATA_LOGS_MASK_INFO = [];
 
 export const ApiLoggerMiddleware = ExpressWinstonLogger({
   transports: CONFIGURED_TRANSPORTS,
@@ -190,6 +200,20 @@ export const ApiLoggerMiddleware = ExpressWinstonLogger({
     return isExcludedPath(req);
   },
 });
+
+export function getMobileNumberFromJwtToken(token: string) {
+  try {
+    const tokenSplits = token.split(' ');
+    if (tokenSplits?.length && tokenSplits[0].trim().toLocaleLowerCase() === 'bearer') {
+      const jwtToken = tokenSplits[1];
+      const tokenPayload = parseJwt(jwtToken);
+      return tokenPayload['mobileNumber'];
+    }
+  } catch (err) {
+    return undefined;
+  }
+  return undefined; // undefined is returned intentionally to avoid logging null
+}
 
 function getCustomerIdFromJwtToken(token: string) {
   try {
