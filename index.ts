@@ -1,4 +1,4 @@
-import { ApiLoggerMiddleware, Logger, getMobileNumberFromJwtToken } from "./src/logger/logger.service";
+const { ApiLoggerMiddleware, Logger, getMobileNumberFromJwtToken } = require("./src/logger/logger.service");
 
 export {
     Logger,
