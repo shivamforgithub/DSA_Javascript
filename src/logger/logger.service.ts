@@ -18,7 +18,7 @@ import { parseJwt } from '../utils/common.util';
 import moment = require('moment');
 import { SENSITIVE_DATA_LOGS_MASK_INFO } from '../helpers/maskdata.helper';
 import { getExternalId } from '../helpers/identifier.helper';
-import { getTracingId } from 'src/middlewares/distributed-tracing-middleware';
+import { getTracingId } from '../middlewares/distributed-tracing-middleware';
 
 const HEALTH_END_POINT = '/v1/users/health';
 
