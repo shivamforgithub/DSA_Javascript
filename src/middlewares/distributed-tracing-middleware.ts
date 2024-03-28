@@ -1,5 +1,5 @@
 const cls = require('cls-hooked');
-import { TRACING_ID_HEADER_KEY } from 'src/constants/common.constant';
+import { TRACING_ID_HEADER_KEY } from '../constants/common.constant';
 import { v4 as uuidv4 } from 'uuid';
 
 export const distributedTracingNamespace = cls.createNamespace(
