@@ -1,6 +1,7 @@
 {
   "name": "dl-commons",
-  "version": "1.0.10",
+  "type": "module",
+  "version": "1.0.11",
   "description": "contails logger , enums, exceptions etc",
   "main": "./src/index.ts",
   "dependencies": {
