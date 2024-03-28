@@ -118,7 +118,7 @@ class AppLogger {
       namespace,
       meta,
     });
-  }
+}
 
   public error(
     namespace: string,
